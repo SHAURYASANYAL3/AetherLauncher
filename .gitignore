@@ -1,0 +1,24 @@
+*.apk
+*.ap_
+*.dex
+*.class
+
+# Built application files
+build/
+bin/
+gen/
+out/
+
+# Local configuration
+local.properties
+.gradle/
+.idea/
+*.iml
+
+# Keystores
+*.keystore
+!debug.keystore
+
+# OS files
+.DS_Store
+Thumbs.db

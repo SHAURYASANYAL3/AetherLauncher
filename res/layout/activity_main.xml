@@ -1,0 +1,628 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/bg_dark">
+
+    <!-- Top Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/bg_surface"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:elevation="4dp">
+
+        <ImageView
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_launcher"
+            android:contentDescription="Logo" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginLeft="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AETHER LAUNCHER"
+                android:textColor="@color/text_primary"
+                android:textSize="17sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-black" />
+
+            <TextView
+                android:id="@+id/tv_device_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Detecting GPU..."
+                android:textColor="@color/accent_cyan"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- Navigation Tabs -->
+        <HorizontalScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/tab_btn_dashboard"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:text="@string/tab_dashboard"
+                    android:textSize="12sp"
+                    android:textColor="@color/accent_cyan"
+                    android:background="@drawable/bg_button_secondary"
+                    android:layout_marginRight="6dp" />
+
+                <Button
+                    android:id="@+id/tab_btn_renderer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:text="@string/tab_renderer"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    android:background="@drawable/bg_button_secondary"
+                    android:layout_marginRight="6dp" />
+
+                <Button
+                    android:id="@+id/tab_btn_jvm"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:text="@string/tab_jvm"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    android:background="@drawable/bg_button_secondary"
+                    android:layout_marginRight="6dp" />
+
+                <Button
+                    android:id="@+id/tab_btn_controls"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:text="@string/tab_controls"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    android:background="@drawable/bg_button_secondary"
+                    android:layout_marginRight="6dp" />
+
+                <Button
+                    android:id="@+id/tab_btn_logs"
+                    android:layout_width="wrap_content"
+                    android:layout_height="38dp"
+                    android:text="@string/tab_logs"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    android:background="@drawable/bg_button_secondary" />
+            </LinearLayout>
+        </HorizontalScrollView>
+    </LinearLayout>
+
+    <!-- Main Content Area -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="16dp">
+
+        <!-- 1. DASHBOARD VIEW -->
+        <ScrollView
+            android:id="@+id/view_dashboard"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Left Column: Instance & Quick Launch -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.2"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_card_rounded"
+                    android:padding="18dp"
+                    android:layout_marginRight="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ACTIVE PROFILE"
+                        android:textColor="@color/accent_emerald"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_profile_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Minecraft 1.20.4 (Sodium + Lithium Engine)"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="4dp" />
+
+                    <TextView
+                        android:id="@+id/tv_profile_summary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Renderer: Zink Vulkan | RAM: 4096 MB | Shenandoah GC | 120Hz Target"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:layout_marginTop="4dp" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/border_subtle"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="16dp" />
+
+                    <Button
+                        android:id="@+id/btn_launch_game"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:text="@string/btn_play"
+                        android:textColor="#FFFFFF"
+                        android:textStyle="bold"
+                        android:textSize="15sp"
+                        android:background="@drawable/bg_button_launch" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="10dp">
+
+                        <Button
+                            android:id="@+id/btn_auto_optimize"
+                            android:layout_width="0dp"
+                            android:layout_height="42dp"
+                            android:layout_weight="1"
+                            android:text="@string/btn_optimize"
+                            android:textSize="11sp"
+                            android:textColor="@color/accent_cyan"
+                            android:background="@drawable/bg_button_secondary"
+                            android:layout_marginRight="6dp" />
+
+                        <Button
+                            android:id="@+id/btn_open_touch_test"
+                            android:layout_width="0dp"
+                            android:layout_height="42dp"
+                            android:layout_weight="1"
+                            android:text="@string/btn_test_hud"
+                            android:textSize="11sp"
+                            android:textColor="@color/text_primary"
+                            android:background="@drawable/bg_button_secondary" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Right Column: Hardware & Multi-GPU Inspector -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_card_rounded"
+                    android:padding="18dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="HARDWARE ACCELERATION ENGINE"
+                        android:textColor="@color/accent_cyan"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_gpu_model"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="GPU: Checking..."
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="6dp" />
+
+                    <TextView
+                        android:id="@+id/tv_vulkan_version"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Vulkan Support: Active"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:layout_marginTop="2dp" />
+
+                    <TextView
+                        android:id="@+id/tv_mali_adreno_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Multi-GPU Optimizer: Universal (Adreno / Mali Safe)"
+                        android:textColor="@color/accent_emerald"
+                        android:textSize="12sp"
+                        android:layout_marginTop="4dp" />
+
+                    <TextView
+                        android:id="@+id/tv_ram_stats"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="RAM: Allocating..."
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:layout_marginTop="2dp" />
+
+                    <TextView
+                        android:id="@+id/tv_display_hz"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Display: 120 Hz Target Enabled"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp"
+                        android:layout_marginTop="2dp" />
+
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- 2. RENDERER VIEW -->
+        <ScrollView
+            android:id="@+id/view_renderer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card_rounded"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="GPU &amp; GRAPHICS PIPELINE TUNING"
+                    android:textColor="@color/accent_cyan"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Select the graphics translation layer best suited for your GPU architecture."
+                    android:textColor="@color/text_muted"
+                    android:textSize="12sp"
+                    android:layout_marginTop="4dp" />
+
+                <RadioGroup
+                    android:id="@+id/rg_renderer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp">
+
+                    <RadioButton
+                        android:id="@+id/rb_zink"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Zink (OpenGL 4.6 over Vulkan 1.3) [Fastest on Adreno 6xx/7xx and Mali G710+]"
+                        android:textColor="@color/text_primary"
+                        android:checked="true" />
+
+                    <RadioButton
+                        android:id="@+id/rb_gl4es"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Holy GL4ES (Direct GLES Transpiler) [Maximum compatibility for Mali Bifrost/Valhall]"
+                        android:textColor="@color/text_primary" />
+
+                    <RadioButton
+                        android:id="@+id/rb_virgl"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="VirGL / ANGLE (Software GLES Fallback) [Universal Compatibility]"
+                        android:textColor="@color/text_primary" />
+                </RadioGroup>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/border_subtle"
+                    android:layout_marginTop="14dp"
+                    android:layout_marginBottom="14dp" />
+
+                <CheckBox
+                    android:id="@+id/cb_mali_optimizations"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mali Pipeline Shader Cache Balancer (Prevents Mali frame drops on chunk load)"
+                    android:textColor="@color/text_primary"
+                    android:checked="true" />
+
+                <CheckBox
+                    android:id="@+id/cb_adreno_direct"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Adreno Direct Memory Mapping (Qualcomm Snapdragon 8 Gen 1/2/3 Boost)"
+                    android:textColor="@color/text_primary"
+                    android:checked="true" />
+
+                <CheckBox
+                    android:id="@+id/cb_force_high_refresh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Force 120Hz / High Refresh Rate Mode"
+                    android:textColor="@color/text_primary"
+                    android:checked="true" />
+
+                <TextView
+                    android:id="@+id/tv_res_scale_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Resolution Scale: 100% (Native Display)"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginTop="12dp" />
+
+                <SeekBar
+                    android:id="@+id/sb_res_scale"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="50"
+                    android:progress="50"
+                    android:layout_marginTop="4dp" />
+
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- 3. JVM VIEW -->
+        <ScrollView
+            android:id="@+id/view_jvm"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card_rounded"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="JAVA RUNTIME &amp; MEMORY ARCHITECTURE"
+                    android:textColor="@color/accent_emerald"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_allocated_ram"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Allocated RAM: 4096 MB"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginTop="10dp" />
+
+                <SeekBar
+                    android:id="@+id/sb_ram"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="12"
+                    android:progress="4"
+                    android:layout_marginTop="4dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Garbage Collector Preset:"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginTop="14dp" />
+
+                <RadioGroup
+                    android:id="@+id/rg_gc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp">
+
+                    <RadioButton
+                        android:id="@+id/rb_shenandoah"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Shenandoah GC (Ultra-low latency, zero micro-stutter) [Recommended]"
+                        android:textColor="@color/text_primary"
+                        android:checked="true" />
+
+                    <RadioButton
+                        android:id="@+id/rb_zgc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Generational ZGC (Ideal for 6GB+ RAM allocations)"
+                        android:textColor="@color/text_primary" />
+
+                    <RadioButton
+                        android:id="@+id/rb_g1gc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="G1GC (Balanced memory throughput)"
+                        android:textColor="@color/text_primary" />
+                </RadioGroup>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Active Optimized JVM Arguments:"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp"
+                    android:layout_marginTop="14dp" />
+
+                <EditText
+                    android:id="@+id/et_jvm_args"
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:background="@drawable/bg_button_secondary"
+                    android:textColor="@color/accent_cyan"
+                    android:textSize="11sp"
+                    android:fontFamily="monospace"
+                    android:gravity="top|left"
+                    android:padding="8dp"
+                    android:layout_marginTop="4dp" />
+
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- 4. CONTROLS VIEW -->
+        <ScrollView
+            android:id="@+id/view_controls"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card_rounded"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ON-SCREEN TOUCH CONTROLS STUDIO"
+                    android:textColor="@color/accent_purple"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_opacity_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="HUD Button Opacity: 75%"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginTop="12dp" />
+
+                <SeekBar
+                    android:id="@+id/sb_hud_opacity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="100"
+                    android:progress="75"
+                    android:layout_marginTop="4dp" />
+
+                <TextView
+                    android:id="@+id/tv_scale_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="HUD Button Scale: 100%"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginTop="12dp" />
+
+                <SeekBar
+                    android:id="@+id/sb_hud_scale"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="150"
+                    android:progress="100"
+                    android:layout_marginTop="4dp" />
+
+                <CheckBox
+                    android:id="@+id/cb_gyro"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Enable Gyroscope Precision Aiming"
+                    android:textColor="@color/text_primary"
+                    android:layout_marginTop="10dp" />
+
+                <CheckBox
+                    android:id="@+id/cb_haptics"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Haptic Feedback on Button Press"
+                    android:textColor="@color/text_primary"
+                    android:checked="true"
+                    android:layout_marginTop="6dp" />
+
+                <Button
+                    android:id="@+id/btn_launch_touch_studio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="42dp"
+                    android:text="OPEN INTERACTIVE TOUCH HUD CALIBRATION"
+                    android:textColor="@color/text_primary"
+                    android:textSize="12sp"
+                    android:background="@drawable/bg_button_secondary"
+                    android:layout_marginTop="16dp" />
+
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- 5. LOGS VIEW -->
+        <LinearLayout
+            android:id="@+id/view_logs"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:background="@drawable/bg_card_rounded"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="SYSTEM CONSOLE &amp; RUNTIME LOG"
+                    android:textColor="@color/accent_cyan"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btn_clear_logs"
+                    android:layout_width="wrap_content"
+                    android:layout_height="34dp"
+                    android:text="CLEAR"
+                    android:textSize="10sp"
+                    android:textColor="@color/danger_red"
+                    android:background="@drawable/bg_button_secondary" />
+            </LinearLayout>
+
+            <ScrollView
+                android:id="@+id/sv_logs"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginTop="8dp"
+                android:background="#05080E"
+                android:padding="8dp">
+
+                <TextView
+                    android:id="@+id/tv_logs_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#38BDF8"
+                    android:textSize="10sp"
+                    android:fontFamily="monospace"
+                    android:text="[AetherLauncher] Initialized." />
+            </ScrollView>
+        </LinearLayout>
+
+    </FrameLayout>
+</LinearLayout>

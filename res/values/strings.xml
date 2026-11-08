@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Aether Launcher</string>
+    <string name="app_tagline">High-FPS Minecraft Engine for Android</string>
+    <string name="tab_dashboard">Dashboard</string>
+    <string name="tab_renderer">GPU / Renderer</string>
+    <string name="tab_jvm">Memory / JVM</string>
+    <string name="tab_controls">Touch HUD</string>
+    <string name="tab_logs">Console</string>
+    <string name="btn_play">PLAY MINECRAFT</string>
+    <string name="btn_test_hud">TEST CONTROLS</string>
+    <string name="btn_optimize">AUTO-OPTIMIZE FOR MY GPU</string>
+    <string name="renderer_zink">Zink (OpenGL via Vulkan 1.3)</string>
+    <string name="renderer_gl4es">Holy GL4ES (Direct GLES - Mali Stable)</string>
+    <string name="renderer_virgl">VirGL / ANGLE (Software GLES Fallback)</string>
+</resources>

@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_touch_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#07090E">
+
+    <!-- Top Status Overlay -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/hud_fps_counter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="120.0 FPS (Vulkan Zink)"
+            android:textColor="@color/accent_emerald"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:fontFamily="monospace"
+            android:background="#99000000"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp" />
+
+        <TextView
+            android:id="@+id/hud_touch_stats"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Multi-touch: Ready | Touch anywhere to test HUD"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:layout_marginLeft="16dp" />
+
+        <Button
+            android:id="@+id/btn_exit_touch_test"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="CLOSE HUD"
+            android:textSize="11sp"
+            android:textColor="@color/text_primary"
+            android:background="@drawable/bg_button_secondary" />
+    </LinearLayout>
+
+    <!-- Virtual Analog Joystick (Left Side) -->
+    <RelativeLayout
+        android:id="@+id/joystick_base"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="30dp"
+        android:layout_marginBottom="30dp"
+        android:background="@drawable/hud_stick_base">
+
+        <View
+            android:id="@+id/joystick_thumb"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/hud_stick_thumb" />
+    </RelativeLayout>
+
+    <!-- Top Utility Buttons (F3, Chat, Pause, Keyboard) -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp">
+
+        <Button
+            android:id="@+id/hud_btn_f3"
+            android:layout_width="48dp"
+            android:layout_height="40dp"
+            android:text="F3"
+            android:textSize="11sp"
+            android:textColor="@color/text_primary"
+            android:background="@drawable/bg_button_secondary"
+            android:layout_marginRight="6dp" />
+
+        <Button
+            android:id="@+id/hud_btn_chat"
+            android:layout_width="48dp"
+            android:layout_height="40dp"
+            android:text="CHAT"
+            android:textSize="10sp"
+            android:textColor="@color/text_primary"
+            android:background="@drawable/bg_button_secondary"
+            android:layout_marginRight="6dp" />
+
+        <Button
+            android:id="@+id/hud_btn_keyboard"
+            android:layout_width="48dp"
+            android:layout_height="40dp"
+            android:text="KEYB"
+            android:textSize="10sp"
+            android:textColor="@color/text_primary"
+            android:background="@drawable/bg_button_secondary"
+            android:layout_marginRight="6dp" />
+
+        <Button
+            android:id="@+id/hud_btn_esc"
+            android:layout_width="48dp"
+            android:layout_height="40dp"
+            android:text="ESC"
+            android:textSize="11sp"
+            android:textColor="@color/danger_red"
+            android:background="@drawable/bg_button_secondary" />
+    </LinearLayout>
+
+    <!-- Right Side Action Cluster (Attack, Use, Jump, Sneak, Inv) -->
+    <RelativeLayout
+        android:layout_width="240dp"
+        android:layout_height="240dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="20dp">
+
+        <!-- Attack Button (Sword icon or text) -->
+        <Button
+            android:id="@+id/hud_btn_attack"
+            android:layout_width="66dp"
+            android:layout_height="66dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:text="ATK"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@color/accent_cyan"
+            android:background="@drawable/hud_button" />
+
+        <!-- Use / Place Button -->
+        <Button
+            android:id="@+id/hud_btn_use"
+            android:layout_width="66dp"
+            android:layout_height="66dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:text="USE"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@color/accent_emerald"
+            android:background="@drawable/hud_button" />
+
+        <!-- Jump Button (Center Right) -->
+        <Button
+            android:id="@+id/hud_btn_jump"
+            android:layout_width="74dp"
+            android:layout_height="74dp"
+            android:layout_centerInParent="true"
+            android:text="JUMP"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/hud_button" />
+
+        <!-- Sneak Button (Bottom Left) -->
+        <Button
+            android:id="@+id/hud_btn_sneak"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:text="SNK"
+            android:textSize="11sp"
+            android:textColor="@color/text_primary"
+            android:background="@drawable/hud_button" />
+
+        <!-- Inventory Button (Bottom Right) -->
+        <Button
+            android:id="@+id/hud_btn_inv"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:text="INV"
+            android:textSize="11sp"
+            android:textColor="@color/accent_amber"
+            android:background="@drawable/hud_button" />
+    </RelativeLayout>
+
+    <!-- Crosshair in center -->
+    <View
+        android:layout_width="16dp"
+        android:layout_height="2dp"
+        android:layout_centerInParent="true"
+        android:background="#AAFFFFFF" />
+    <View
+        android:layout_width="2dp"
+        android:layout_height="16dp"
+        android:layout_centerInParent="true"
+        android:background="#AAFFFFFF" />
+
+</RelativeLayout>
