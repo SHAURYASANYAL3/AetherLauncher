@@ -8,6 +8,7 @@ build/
 bin/
 gen/
 out/
+native-rust/target/
 
 # Local configuration
 local.properties

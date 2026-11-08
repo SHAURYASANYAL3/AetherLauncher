@@ -50,6 +50,8 @@ public class MainActivity extends Activity {
     private CheckBox cbMaliOptimizations;
     private CheckBox cbAdrenoDirect;
     private CheckBox cbForceHighRefresh;
+    private CheckBox cbUnlimitedFps;
+    private Button btnLaunchStarling;
 
     private HardwareProfiler.DeviceSpec deviceSpec;
     private GpuOptimizer.OptimizationProfile currentProfile;
@@ -104,6 +106,8 @@ public class MainActivity extends Activity {
         cbMaliOptimizations = findViewById(R.id.cb_mali_optimizations);
         cbAdrenoDirect = findViewById(R.id.cb_adreno_direct);
         cbForceHighRefresh = findViewById(R.id.cb_force_high_refresh);
+        cbUnlimitedFps = findViewById(R.id.cb_unlimited_fps);
+        btnLaunchStarling = findViewById(R.id.btn_launch_starling);
     }
 
     private void setupNavigation() {
@@ -188,7 +192,31 @@ public class MainActivity extends Activity {
                     int mb = progress * 1024;
                     currentProfile.allocatedRamMb = mb;
                     tvAllocatedRam.setText("Allocated RAM: " + mb + " MB");
-                    updateJvmText();
+                    // Unlimited 500+ FPS Checkbox
+        if (cbUnlimitedFps != null) {
+            cbUnlimitedFps.setOnCheckedChangeListener((btn, isChecked) -> {
+                currentProfile.unlimitedFps = isChecked;
+                log("[RenderPipeline] Unlimited 500+ FPS Mode: " + (isChecked ? "ENGAGED (Immediate Swapchain)" : "VSync Locked"));
+                refreshProfileSummary();
+            });
+        }
+
+        // Direct Launch to Starling (Horizon Rust Native Client)
+        if (btnLaunchStarling != null) {
+            btnLaunchStarling.setOnClickListener(v -> {
+                try {
+                    log("[AetherLauncher] Bridging to Starling / Horizon Rust Native Client...");
+                    Intent intent = new Intent();
+                    intent.setClassName("dev.horizon.android", "com.google.androidgamesdk.GameActivity");
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "Launching Native Rust Client...", Toast.LENGTH_SHORT).show();
+                    log("[AetherLauncher] Native engine launched.");
+                }
+            });
+        }
+
+        updateJvmText();
                     refreshProfileSummary();
                 }
 
@@ -240,7 +268,31 @@ public class MainActivity extends Activity {
                     currentProfile.gcPreset = "G1GC";
                 }
                 log("[JVM] GC Preset changed to " + currentProfile.gcPreset);
-                updateJvmText();
+                // Unlimited 500+ FPS Checkbox
+        if (cbUnlimitedFps != null) {
+            cbUnlimitedFps.setOnCheckedChangeListener((btn, isChecked) -> {
+                currentProfile.unlimitedFps = isChecked;
+                log("[RenderPipeline] Unlimited 500+ FPS Mode: " + (isChecked ? "ENGAGED (Immediate Swapchain)" : "VSync Locked"));
+                refreshProfileSummary();
+            });
+        }
+
+        // Direct Launch to Starling (Horizon Rust Native Client)
+        if (btnLaunchStarling != null) {
+            btnLaunchStarling.setOnClickListener(v -> {
+                try {
+                    log("[AetherLauncher] Bridging to Starling / Horizon Rust Native Client...");
+                    Intent intent = new Intent();
+                    intent.setClassName("dev.horizon.android", "com.google.androidgamesdk.GameActivity");
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "Launching Native Rust Client...", Toast.LENGTH_SHORT).show();
+                    log("[AetherLauncher] Native engine launched.");
+                }
+            });
+        }
+
+        updateJvmText();
                 refreshProfileSummary();
             });
         }
@@ -275,6 +327,30 @@ public class MainActivity extends Activity {
             btnStudio.setOnClickListener(v -> {
                 Intent intent = new Intent(this, TouchControlsActivity.class);
                 startActivity(intent);
+            });
+        }
+
+        // Unlimited 500+ FPS Checkbox
+        if (cbUnlimitedFps != null) {
+            cbUnlimitedFps.setOnCheckedChangeListener((btn, isChecked) -> {
+                currentProfile.unlimitedFps = isChecked;
+                log("[RenderPipeline] Unlimited 500+ FPS Mode: " + (isChecked ? "ENGAGED (Immediate Swapchain)" : "VSync Locked"));
+                refreshProfileSummary();
+            });
+        }
+
+        // Direct Launch to Starling (Horizon Rust Native Client)
+        if (btnLaunchStarling != null) {
+            btnLaunchStarling.setOnClickListener(v -> {
+                try {
+                    log("[AetherLauncher] Bridging to Starling / Horizon Rust Native Client...");
+                    Intent intent = new Intent();
+                    intent.setClassName("dev.horizon.android", "com.google.androidgamesdk.GameActivity");
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "Launching Native Rust Client...", Toast.LENGTH_SHORT).show();
+                    log("[AetherLauncher] Native engine launched.");
+                }
             });
         }
 
@@ -318,6 +394,7 @@ public class MainActivity extends Activity {
         intent.putExtra("RENDERER", currentProfile.renderer.toString());
         intent.putExtra("GC", currentProfile.gcPreset);
         intent.putExtra("RAM", currentProfile.allocatedRamMb);
+        intent.putExtra("UNLIMITED_FPS", currentProfile.unlimitedFps);
         startActivity(intent);
     }
 

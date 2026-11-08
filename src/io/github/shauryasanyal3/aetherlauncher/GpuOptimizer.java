@@ -16,14 +16,24 @@ public class GpuOptimizer {
         public boolean enableMaliFixes = true;
         public boolean enableAdrenoDirect = true;
         public boolean forceHighRefresh = true;
+        public boolean unlimitedFps = true;
         public int resolutionScale = 100;
         public String gcPreset = "Shenandoah";
         public int allocatedRamMb = 4096;
-        public float targetFps = 120.0f;
+        public float targetFps = 500.0f;
     }
 
     public static Map<String, String> buildEnvironment(OptimizationProfile profile, boolean isMali) {
         Map<String, String> env = new HashMap<>();
+
+        if (profile.unlimitedFps) {
+            env.put("vulkan_wsi_present_mode", "immediate");
+            env.put("MESA_VK_WSI_PRESENT_MODE", "immediate");
+            env.put("MESA_GL_SWAP_INTERVAL", "0");
+            env.put("vblank_mode", "0");
+        } else {
+            env.put("vulkan_wsi_present_mode", "mailbox");
+        }
 
         if (profile.renderer == RendererType.ZINK_VULKAN) {
             env.put("MESA_LOADER_DRIVER_OVERRIDE", "zink");

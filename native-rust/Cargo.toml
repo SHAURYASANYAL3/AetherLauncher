@@ -1,0 +1,30 @@
+[package]
+name = "aether-native"
+version = "1.0.0"
+edition = "2021"
+authors = ["SHAURYASANYAL3"]
+description = "High-performance native Rust Minecraft Vulkan renderer engine with unlimited 500+ FPS pacing for Android"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# Direct Vulkan & Hardware Window Handles
+raw-window-handle = "0.6"
+log = "0.4"
+android_logger = "0.13"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+overflow-checks = false
+strip = true
+
+[features]
+default = ["unlimited_fps", "adreno_direct", "mali_safe"]
+unlimited_fps = []
+adreno_direct = []
+mali_safe = []
