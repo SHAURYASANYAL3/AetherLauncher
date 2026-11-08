@@ -1,36 +1,54 @@
 package io.github.shauryasanyal3.aetherlauncher;
 
 import android.app.Activity;
+import android.graphics.Color;
+import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.Choreographer;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class GameScreenActivity extends Activity {
 
-    private TextView tvLiveFps;
-    private TextView tvFrameTime;
-    private TextView tvEngineTag;
+    private GLSurfaceView glSurfaceView;
+    private VoxelWorld world;
+    private VoxelPlayer player;
+    private VoxelRenderer renderer;
 
-    private boolean isUnlimitedFps = true;
-    private final AtomicBoolean isRunning = new AtomicBoolean(true);
-    private final AtomicInteger uncappedFrameCount = new AtomicInteger(0);
+    private TextView tvGameFps;
+    private TextView tvGameCoords;
 
-    private int frameCount = 0;
-    private long fpsTimer = 0;
-    private Choreographer.FrameCallback frameCallback;
-    private Thread renderWorker;
+    private float lastTouchX;
+    private float lastTouchY;
+    private boolean isLooking = false;
+
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private boolean isRunning = true;
+
+    // Joystick State
+    private float joystickCenterX;
+    private float joystickCenterY;
+    private static final float JOYSTICK_MAX_RADIUS = 110.0f; // pixels
+
+    // Hotbar buttons
+    private Button[] hotbarButtons;
+    private final byte[] hotbarBlocks = {
+            VoxelBlock.GRASS,
+            VoxelBlock.COBBLESTONE,
+            VoxelBlock.WOOD,
+            VoxelBlock.DIAMOND,
+            VoxelBlock.BRICK,
+            VoxelBlock.GLASS
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,30 +57,35 @@ public class GameScreenActivity extends Activity {
 
         hideSystemUI();
 
-        tvLiveFps = findViewById(R.id.game_live_fps);
-        tvFrameTime = findViewById(R.id.game_frame_time);
-        tvEngineTag = findViewById(R.id.game_engine_tag);
+        glSurfaceView = findViewById(R.id.gl_surface_view);
+        tvGameFps = findViewById(R.id.tv_game_fps);
+        tvGameCoords = findViewById(R.id.tv_game_coords);
 
-        String renderer = getIntent().getStringExtra("RENDERER");
-        String gc = getIntent().getStringExtra("GC");
-        int ram = getIntent().getIntExtra("RAM", 4096);
-        isUnlimitedFps = getIntent().getBooleanExtra("UNLIMITED_FPS", true);
+        // Initialize 3D Voxel World and Player
+        world = new VoxelWorld();
+        player = new VoxelPlayer();
+        player.x = 8.0f;
+        player.y = 28.0f;
+        player.z = 8.0f;
+        player.selectedBlock = VoxelBlock.COBBLESTONE;
 
-        if (renderer != null && tvEngineTag != null) {
-            String fpsMode = isUnlimitedFps ? "500+ FPS Uncapped (Immediate Mode)" : "120Hz VSync Locked";
-            tvEngineTag.setText("Engine: " + renderer + " | " + gc + " | " + ram + "MB | " + fpsMode);
-        }
+        // Configure GLES 3.0 Surface
+        glSurfaceView.setEGLContextClientVersion(3);
+        renderer = new VoxelRenderer(world, player);
+        glSurfaceView.setRenderer(renderer);
+        glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
-        Button btnExit = findViewById(R.id.btn_exit_game);
+        setupLookControls();
+        setupJoystick();
+        setupActionButtons();
+        setupHotbar();
+
+        Button btnExit = findViewById(R.id.btn_game_exit);
         if (btnExit != null) {
             btnExit.setOnClickListener(v -> finish());
         }
 
-        if (isUnlimitedFps) {
-            setupUnlimitedFpsLoop();
-        } else {
-            setupVsyncLoop();
-        }
+        startHudTicker();
     }
 
     private void hideSystemUI() {
@@ -83,89 +106,213 @@ public class GameScreenActivity extends Activity {
         }
     }
 
-    private void setupUnlimitedFpsLoop() {
-        // High-frequency render thread bypassing VSync (VK_PRESENT_MODE_IMMEDIATE_KHR simulation)
-        renderWorker = new Thread(() -> {
-            long targetIntervalNanos = 1_850_000; // ~540 FPS
-            long lastFrame = System.nanoTime();
+    private void setupLookControls() {
+        View touchLookZone = findViewById(R.id.touch_look_zone);
+        if (touchLookZone == null) return;
 
-            while (isRunning.get()) {
-                long now = System.nanoTime();
-                if (now - lastFrame >= targetIntervalNanos) {
-                    uncappedFrameCount.incrementAndGet();
-                    lastFrame = now;
+        touchLookZone.setOnTouchListener((v, event) -> {
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    lastTouchX = event.getX();
+                    lastTouchY = event.getY();
+                    isLooking = true;
+                    return true;
+
+                case MotionEvent.ACTION_MOVE:
+                    if (isLooking) {
+                        float dx = event.getX() - lastTouchX;
+                        float dy = event.getY() - lastTouchY;
+                        lastTouchX = event.getX();
+                        lastTouchY = event.getY();
+
+                        // Update camera rotation (intuitive FPS look)
+                        player.yaw += dx * 0.22f;
+                        player.pitch = Math.max(-89.0f, Math.min(89.0f, player.pitch + dy * 0.22f));
+                    }
+                    return true;
+
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    isLooking = false;
+                    return true;
+            }
+            return false;
+        });
+    }
+
+    private void setupJoystick() {
+        View stickBase = findViewById(R.id.game_joystick_base);
+        View stickThumb = findViewById(R.id.game_joystick_thumb);
+        if (stickBase == null || stickThumb == null) return;
+
+        stickBase.setOnTouchListener((v, event) -> {
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    joystickCenterX = stickBase.getWidth() / 2.0f;
+                    joystickCenterY = stickBase.getHeight() / 2.0f;
+                    // fallthrough to handle first touch position
+
+                case MotionEvent.ACTION_MOVE:
+                    float touchX = event.getX();
+                    float touchY = event.getY();
+                    float dx = touchX - joystickCenterX;
+                    float dy = touchY - joystickCenterY;
+                    float distance = (float) Math.sqrt(dx * dx + dy * dy);
+
+                    float clampedDist = Math.min(distance, JOYSTICK_MAX_RADIUS);
+                    float dirX = (distance > 0) ? (dx / distance) : 0f;
+                    float dirY = (distance > 0) ? (dy / distance) : 0f;
+
+                    float thumbX = dirX * clampedDist;
+                    float thumbY = dirY * clampedDist;
+                    stickThumb.setTranslationX(thumbX);
+                    stickThumb.setTranslationY(thumbY);
+
+                    // Map to forward/strafe inputs (-1.0 to 1.0)
+                    float intensity = clampedDist / JOYSTICK_MAX_RADIUS;
+                    renderer.moveForward = -dirY * intensity;
+                    renderer.moveStrafe = dirX * intensity;
+                    return true;
+
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    stickThumb.setTranslationX(0f);
+                    stickThumb.setTranslationY(0f);
+                    renderer.moveForward = 0f;
+                    renderer.moveStrafe = 0f;
+                    return true;
+            }
+            return false;
+        });
+    }
+
+    private void setupActionButtons() {
+        Button btnBreak = findViewById(R.id.btn_game_break);
+        Button btnPlace = findViewById(R.id.btn_game_place);
+        Button btnJump = findViewById(R.id.btn_game_jump);
+
+        if (btnBreak != null) {
+            btnBreak.setOnClickListener(v -> {
+                v.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP);
+                float[] look = player.getLookDirection();
+                VoxelWorld.RaycastHit hit = world.raycast(player.x, player.getEyeY(), player.z, look[0], look[1], look[2], 6.0f);
+                if (hit != null) {
+                    world.setBlock(hit.x, hit.y, hit.z, VoxelBlock.AIR);
+                }
+            });
+        }
+
+        if (btnPlace != null) {
+            btnPlace.setOnClickListener(v -> {
+                v.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP);
+                float[] look = player.getLookDirection();
+                VoxelWorld.RaycastHit hit = world.raycast(player.x, player.getEyeY(), player.z, look[0], look[1], look[2], 6.0f);
+                if (hit != null) {
+                    int placeX = hit.x + hit.faceX;
+                    int placeY = hit.y + hit.faceY;
+                    int placeZ = hit.z + hit.faceZ;
+
+                    if (!intersectsPlayer(placeX, placeY, placeZ, player)) {
+                        world.setBlock(placeX, placeY, placeZ, player.selectedBlock);
+                    }
+                }
+            });
+        }
+
+        if (btnJump != null) {
+            btnJump.setOnClickListener(v -> {
+                v.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
+                player.jump();
+            });
+        }
+    }
+
+    private boolean intersectsPlayer(int bx, int by, int bz, VoxelPlayer p) {
+        boolean overlapX = (p.x + VoxelPlayer.PLAYER_RADIUS > bx) && (p.x - VoxelPlayer.PLAYER_RADIUS < bx + 1);
+        boolean overlapY = (p.y + VoxelPlayer.PLAYER_HEIGHT > by) && (p.y < by + 1);
+        boolean overlapZ = (p.z + VoxelPlayer.PLAYER_RADIUS > bz) && (p.z - VoxelPlayer.PLAYER_RADIUS < bz + 1);
+        return overlapX && overlapY && overlapZ;
+    }
+
+    private void setupHotbar() {
+        hotbarButtons = new Button[]{
+                findViewById(R.id.slot_grass),
+                findViewById(R.id.slot_cobble),
+                findViewById(R.id.slot_wood),
+                findViewById(R.id.slot_diamond),
+                findViewById(R.id.slot_brick),
+                findViewById(R.id.slot_glass)
+        };
+
+        for (int i = 0; i < hotbarButtons.length; i++) {
+            final int index = i;
+            if (hotbarButtons[i] != null) {
+                hotbarButtons[i].setOnClickListener(v -> selectSlot(index));
+            }
+        }
+        selectSlot(1); // Default to Cobblestone
+    }
+
+    private void selectSlot(int index) {
+        if (index < 0 || index >= hotbarBlocks.length) return;
+        player.selectedBlock = hotbarBlocks[index];
+
+        for (int i = 0; i < hotbarButtons.length; i++) {
+            if (hotbarButtons[i] != null) {
+                if (i == index) {
+                    hotbarButtons[i].setBackgroundColor(Color.parseColor("#38BDF8")); // Active Cyan
                 } else {
-                    // Yield to prevent CPU starvation
-                    Thread.yield();
+                    hotbarButtons[i].setBackgroundResource(R.drawable.bg_button_secondary);
                 }
             }
-        }, "AetherVulkanRenderWorker");
-        renderWorker.setPriority(Thread.MAX_PRIORITY);
-        renderWorker.start();
+        }
+    }
 
-        // UI Ticker that reads from the atomic render counter every 300ms
+    private void startHudTicker() {
         final Runnable ticker = new Runnable() {
-            private long lastCalcTime = System.currentTimeMillis();
-
             @Override
             public void run() {
-                if (!isRunning.get()) return;
+                if (!isRunning) return;
 
-                long now = System.currentTimeMillis();
-                long elapsed = now - lastCalcTime;
-                if (elapsed >= 300) {
-                    int frames = uncappedFrameCount.getAndSet(0);
-                    float fps = (frames * 1000.0f) / elapsed;
-                    float frametimeMs = (fps > 0) ? (1000.0f / fps) : 0.0f;
-
-                    if (tvLiveFps != null) {
-                        tvLiveFps.setText(String.format(Locale.US, "%.1f FPS", fps));
-                    }
-                    if (tvFrameTime != null) {
-                        tvFrameTime.setText(String.format(Locale.US, "Frametime: %.2f ms (Zero Stutter / Uncapped Rust Pipeline)", frametimeMs));
-                    }
-                    lastCalcTime = now;
+                if (tvGameFps != null && renderer != null) {
+                    tvGameFps.setText(String.format(Locale.US, "%.1f FPS (%.2f ms)",
+                            renderer.currentFps, renderer.currentFrametimeMs));
                 }
-                mainHandler.postDelayed(this, 150);
+
+                if (tvGameCoords != null && player != null && world != null) {
+                    float[] look = player.getLookDirection();
+                    VoxelWorld.RaycastHit hit = world.raycast(player.x, player.getEyeY(), player.z, look[0], look[1], look[2], 6.0f);
+                    String targetName = (hit != null) ? VoxelBlock.getName(hit.block) : "Air";
+                    tvGameCoords.setText(String.format(Locale.US, "XYZ: %.1f / %.1f / %.1f | Block: %s",
+                            player.x, player.y, player.z, targetName));
+                }
+
+                mainHandler.postDelayed(this, 120);
             }
         };
         mainHandler.post(ticker);
     }
 
-    private void setupVsyncLoop() {
-        fpsTimer = System.currentTimeMillis();
-        frameCallback = new Choreographer.FrameCallback() {
-            @Override
-            public void doFrame(long frameTimeNanos) {
-                frameCount++;
-                long now = System.currentTimeMillis();
-                if (now - fpsTimer >= 500) {
-                    float fps = (frameCount * 1000f) / (now - fpsTimer);
-                    float frameTimeMs = (fps > 0) ? (1000f / fps) : 0f;
-                    if (tvLiveFps != null) {
-                        tvLiveFps.setText(String.format(Locale.US, "%.1f FPS", fps));
-                    }
-                    if (tvFrameTime != null) {
-                        tvFrameTime.setText(String.format(Locale.US, "Frametime: %.2f ms (VSync Locked)", frameTimeMs));
-                    }
-                    frameCount = 0;
-                    fpsTimer = now;
-                }
-                Choreographer.getInstance().postFrameCallback(this);
-            }
-        };
-        Choreographer.getInstance().postFrameCallback(frameCallback);
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (glSurfaceView != null) {
+            glSurfaceView.onResume();
+        }
+        hideSystemUI();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (glSurfaceView != null) {
+            glSurfaceView.onPause();
+        }
     }
 
     @Override
     protected void onDestroy() {
-        isRunning.set(false);
+        isRunning = false;
         super.onDestroy();
-        if (frameCallback != null) {
-            Choreographer.getInstance().removeFrameCallback(frameCallback);
-        }
-        if (renderWorker != null) {
-            renderWorker.interrupt();
-        }
     }
 }

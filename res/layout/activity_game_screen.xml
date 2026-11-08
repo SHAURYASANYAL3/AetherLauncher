@@ -1,78 +1,228 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_game_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#000000">
 
-    <!-- Game Viewport Simulation / Canvas -->
-    <LinearLayout
+    <!-- 3D Voxel World SurfaceView -->
+    <android.opengl.GLSurfaceView
+        android:id="@+id/gl_surface_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Invisible Touch Look Zone on right 65% of screen -->
+    <View
+        android:id="@+id/touch_look_zone"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center">
+        android:layout_marginLeft="200dp" />
+
+    <!-- Top Debug & HUD Overlay -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:gravity="center_vertical">
 
         <TextView
-            android:id="@+id/game_status_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="MINECRAFT 1.20.4"
-            android:textColor="#FFFFFF"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            android:fontFamily="sans-serif-black" />
-
-        <TextView
-            android:id="@+id/game_engine_tag"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Running on Zink Vulkan 1.3 | Sodium &amp; Lithium Active"
-            android:textColor="@color/accent_cyan"
-            android:textSize="13sp"
-            android:layout_marginTop="4dp" />
-
-        <TextView
-            android:id="@+id/game_live_fps"
+            android:id="@+id/tv_game_fps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="120.0 FPS"
             android:textColor="@color/accent_emerald"
-            android:textSize="40sp"
+            android:textSize="13sp"
             android:textStyle="bold"
             android:fontFamily="monospace"
-            android:layout_marginTop="16dp" />
+            android:background="#99000000"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp" />
 
         <TextView
-            android:id="@+id/game_frame_time"
-            android:layout_width="wrap_content"
+            android:id="@+id/tv_game_coords"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Frametime: 8.33 ms (Smooth Pacing)"
-            android:textColor="@color/text_secondary"
-            android:textSize="12sp"
-            android:layout_marginTop="2dp" />
+            android:layout_weight="1"
+            android:text="XYZ: 8.0 / 26.0 / 8.0 | Looking: Searching..."
+            android:textColor="@color/text_primary"
+            android:textSize="11sp"
+            android:fontFamily="monospace"
+            android:layout_marginLeft="10dp"
+            android:background="#99000000"
+            android:padding="4dp" />
 
         <Button
-            android:id="@+id/btn_exit_game"
+            android:id="@+id/btn_game_exit"
             android:layout_width="wrap_content"
-            android:layout_height="44dp"
-            android:text="PAUSE &amp; EXIT TO LAUNCHER"
-            android:textColor="@color/text_primary"
-            android:textSize="12sp"
-            android:background="@drawable/bg_button_secondary"
-            android:layout_marginTop="24dp" />
+            android:layout_height="34dp"
+            android:text="EXIT"
+            android:textSize="10sp"
+            android:textColor="@color/danger_red"
+            android:background="@drawable/bg_button_secondary" />
     </LinearLayout>
 
-    <!-- Top Overlay Badge -->
-    <TextView
+    <!-- Center Crosshair -->
+    <View
+        android:layout_width="14dp"
+        android:layout_height="2dp"
+        android:layout_centerInParent="true"
+        android:background="#DDFFFFFF" />
+    <View
+        android:layout_width="2dp"
+        android:layout_height="14dp"
+        android:layout_centerInParent="true"
+        android:background="#DDFFFFFF" />
+
+    <!-- Virtual Joystick (Left) -->
+    <RelativeLayout
+        android:id="@+id/game_joystick_base"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="24dp"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/hud_stick_base">
+
+        <View
+            android:id="@+id/game_joystick_thumb"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerInParent="true"
+            android:background="@drawable/hud_stick_thumb" />
+    </RelativeLayout>
+
+    <!-- Hotbar in Bottom Center -->
+    <LinearLayout
+        android:id="@+id/hotbar_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_margin="12dp"
-        android:text="Aether Multi-GPU Engine: ACTIVE"
-        android:textColor="@color/accent_emerald"
-        android:textSize="11sp"
-        android:fontFamily="monospace"
-        android:background="#99000000"
-        android:padding="6dp" />
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="12dp"
+        android:background="#AA000000"
+        android:padding="4dp">
+
+        <Button
+            android:id="@+id/slot_grass"
+            android:layout_width="50dp"
+            android:layout_height="38dp"
+            android:text="GRASS"
+            android:textSize="8sp"
+            android:maxLines="1"
+            android:padding="0dp"
+            android:textColor="@color/accent_emerald"
+            android:background="@drawable/bg_button_secondary"
+            android:layout_marginRight="4dp" />
+
+        <Button
+            android:id="@+id/slot_cobble"
+            android:layout_width="52dp"
+            android:layout_height="38dp"
+            android:text="COBBLE"
+            android:textSize="8sp"
+            android:maxLines="1"
+            android:padding="0dp"
+            android:textColor="@color/text_primary"
+            android:background="@drawable/bg_button_secondary"
+            android:layout_marginRight="4dp" />
+
+        <Button
+            android:id="@+id/slot_wood"
+            android:layout_width="50dp"
+            android:layout_height="38dp"
+            android:text="WOOD"
+            android:textSize="8sp"
+            android:maxLines="1"
+            android:padding="0dp"
+            android:textColor="@color/accent_amber"
+            android:background="@drawable/bg_button_secondary"
+            android:layout_marginRight="4dp" />
+
+        <Button
+            android:id="@+id/slot_diamond"
+            android:layout_width="58dp"
+            android:layout_height="38dp"
+            android:text="DIAMOND"
+            android:textSize="7sp"
+            android:maxLines="1"
+            android:padding="0dp"
+            android:textColor="@color/accent_cyan"
+            android:background="@drawable/bg_button_secondary"
+            android:layout_marginRight="4dp" />
+
+        <Button
+            android:id="@+id/slot_brick"
+            android:layout_width="50dp"
+            android:layout_height="38dp"
+            android:text="BRICK"
+            android:textSize="8sp"
+            android:maxLines="1"
+            android:padding="0dp"
+            android:textColor="@color/danger_red"
+            android:background="@drawable/bg_button_secondary"
+            android:layout_marginRight="4dp" />
+
+        <Button
+            android:id="@+id/slot_glass"
+            android:layout_width="50dp"
+            android:layout_height="38dp"
+            android:text="GLASS"
+            android:textSize="8sp"
+            android:maxLines="1"
+            android:padding="0dp"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/bg_button_secondary" />
+    </LinearLayout>
+
+    <!-- Action Buttons Cluster (Right) -->
+    <RelativeLayout
+        android:layout_width="220dp"
+        android:layout_height="200dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp">
+
+        <Button
+            android:id="@+id/btn_game_break"
+            android:layout_width="66dp"
+            android:layout_height="66dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:text="BREAK"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@color/danger_red"
+            android:background="@drawable/hud_button" />
+
+        <Button
+            android:id="@+id/btn_game_place"
+            android:layout_width="66dp"
+            android:layout_height="66dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:text="PLACE"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="@color/accent_emerald"
+            android:background="@drawable/hud_button" />
+
+        <Button
+            android:id="@+id/btn_game_jump"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:text="JUMP"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/hud_button" />
+    </RelativeLayout>
 
 </RelativeLayout>
